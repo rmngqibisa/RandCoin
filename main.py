@@ -1,4 +1,5 @@
 import sys
+import datetime
 from decimal import Decimal, InvalidOperation
 from src.blockchain import Blockchain
 from src.transaction import Transaction
@@ -28,11 +29,20 @@ def main():
         if choice == '1':
             for block in blockchain.chain:
                 print("-------------------------")
-                print(f"Index: {blockchain.chain.index(block)}")
-                print(f"Timestamp: {block.timestamp}")
-                print(f"Transactions: {block.transactions}")
+                print(f"Index:         {blockchain.chain.index(block)}")
+
+                dt_object = datetime.datetime.fromtimestamp(block.timestamp)
+                print(f"Timestamp:     {dt_object.strftime('%Y-%m-%d %H:%M:%S')}")
+
+                print(f"Hash:          {block.hash}")
                 print(f"Previous Hash: {block.previous_hash}")
-                print(f"Hash: {block.hash}")
+
+                print("Transactions:")
+                if not block.transactions:
+                    print("  (No transactions)")
+                else:
+                    for tx in block.transactions:
+                        print(f"  - {tx.sender} -> {tx.recipient}: {tx.amount} {CURRENCY}")
                 print("-------------------------")
 
         elif choice == '2':
