@@ -7,6 +7,7 @@ from typing import Dict, Any
 class Transaction:
     """
     Represents a value transfer in the RandCoin network.
+    Immutable to prevent tampering after creation/validation.
     """
     def __init__(self, sender: str, recipient: str, amount: Decimal, timestamp: float = None):
         """
@@ -17,21 +18,49 @@ class Transaction:
         :param amount: The amount to send (in ZAR).
         :param timestamp: The time of creation.
         """
-        self.sender = sender
-        self.recipient = recipient
-        self.amount = amount
-        self.timestamp = timestamp or time.time()
-        self.id = self.calculate_hash()
+        if amount <= 0 and sender != "genesis":
+            raise ValueError("Transaction amount must be positive.")
+        if not sender:
+            raise ValueError("Sender address cannot be empty.")
+        if not recipient:
+            raise ValueError("Recipient address cannot be empty.")
+
+        # Use hidden attributes to simulate immutability with properties
+        self._sender = sender
+        self._recipient = recipient
+        self._amount = amount
+        self._timestamp = timestamp or time.time()
+        self._id = self.calculate_hash()
+
+    @property
+    def sender(self) -> str:
+        return self._sender
+
+    @property
+    def recipient(self) -> str:
+        return self._recipient
+
+    @property
+    def amount(self) -> Decimal:
+        return self._amount
+
+    @property
+    def timestamp(self) -> float:
+        return self._timestamp
+
+    @property
+    def id(self) -> str:
+        return self._id
 
     def calculate_hash(self) -> str:
         """
         Calculate the SHA-256 hash of the transaction.
         """
         tx_content = {
-            "sender": self.sender,
-            "recipient": self.recipient,
-            "amount": float(self.amount),  # Convert Decimal to float for JSON serialization compatibility
-            "timestamp": self.timestamp
+            "sender": self._sender,
+            "recipient": self._recipient,
+            "amount": float(self._amount),  # Convert Decimal to float for JSON serialization compatibility
+            "timestamp": self._timestamp
         }
         tx_string = json.dumps(tx_content, sort_keys=True).encode()
         return hashlib.sha256(tx_string).hexdigest()
@@ -41,12 +70,12 @@ class Transaction:
         Convert the transaction to a dictionary.
         """
         return {
-            "id": self.id,
-            "sender": self.sender,
-            "recipient": self.recipient,
-            "amount": float(self.amount),
-            "timestamp": self.timestamp
+            "id": self._id,
+            "sender": self._sender,
+            "recipient": self._recipient,
+            "amount": float(self._amount),
+            "timestamp": self._timestamp
         }
 
     def __repr__(self) -> str:
-        return f"<Transaction {self.id[:8]}... {self.sender} -> {self.recipient}: {self.amount}>"
+        return f"<Transaction {self._id[:8]}... {self._sender} -> {self._recipient}: {self._amount}>"

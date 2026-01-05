@@ -70,7 +70,11 @@ class TestBlockchain(unittest.TestCase):
 
         # Tamper with the chain
         # Change amount of reward transaction in block 1
-        self.blockchain.chain[1].transactions[0].amount = Decimal(1000)
+        # Since Transaction is immutable, we replace the transaction object
+        original_tx = self.blockchain.chain[1].transactions[0]
+        tampered_tx = Transaction(original_tx.sender, original_tx.recipient, Decimal(1000), original_tx.timestamp)
+        self.blockchain.chain[1].transactions[0] = tampered_tx
+
         self.assertFalse(self.blockchain.is_chain_valid())
 
 if __name__ == '__main__':
