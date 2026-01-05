@@ -43,6 +43,28 @@ class Block:
         :param difficulty: Number of leading zeros required in the hash.
         """
         target = "0" * difficulty
+
+        # Optimization: Pre-compute the dict representation of transactions
+        # This avoids re-converting transactions to dicts and floats in every iteration
+        # of the mining loop, while keeping calculate_hash() pure for verification.
+        tx_list = [t.to_dict() for t in self.transactions]
+
+        block_content = {
+            "transactions": tx_list,
+            "previous_hash": self.previous_hash,
+            "nonce": self.nonce,
+            "timestamp": self.timestamp
+        }
+
         while self.hash[:difficulty] != target:
             self.nonce += 1
-            self.hash = self.calculate_hash()
+
+            # Update nonce in the content
+            block_content["nonce"] = self.nonce
+
+            # Re-serialize. Note: In Python's json, sort_keys=True ensures consistent order.
+            # Since we constructed block_content with the same structure as calculate_hash,
+            # this produces the same string.
+            block_string = json.dumps(block_content, sort_keys=True).encode()
+
+            self.hash = hashlib.sha256(block_string).hexdigest()
