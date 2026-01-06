@@ -39,6 +39,18 @@ class Blockchain:
         if transaction.amount <= 0:
             raise ValueError("Transaction amount must be positive.")
 
+        # Check for Duplicate Transaction (Replay Attack Protection)
+        # Check pending pool
+        for pending in self.pending_transactions:
+            if pending.id == transaction.id:
+                raise ValueError("Transaction already exists in pending pool.")
+
+        # Check blockchain history
+        for block in self.chain:
+            for tx in block.transactions:
+                if tx.id == transaction.id:
+                    raise ValueError("Transaction already exists in blockchain.")
+
         # Verify Sender Balance (skip check for system/genesis)
         if transaction.sender not in ["genesis", "System"]:
             spendable_balance = self.get_spendable_balance(transaction.sender)

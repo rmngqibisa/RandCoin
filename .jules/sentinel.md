@@ -1,4 +1,4 @@
-## 2024-05-23 - [TOCTOU Vulnerability in Transaction Logic]
-**Vulnerability:** Found a Time-of-Check to Time-of-Use (TOCTOU) vulnerability where a Transaction object could be validated by `Blockchain.add_transaction` but then modified in memory (e.g., changing amount to negative) before being mined into a block.
-**Learning:** In local Python applications passing objects by reference, validation at the entry point is insufficient if the object remains mutable and accessible to the caller.
-**Prevention:** Enforce immutability on critical financial data structures (like Transactions) using private attributes and properties, or deep copy objects upon crossing trust boundaries.
+## 2024-05-23 - Replay Attack Protection
+**Vulnerability:** The blockchain implementation lacked a mechanism to prevent transaction replay. An attacker could capture a valid transaction object and resubmit it multiple times, draining the victim's wallet as long as they had sufficient balance. This was possible because the system only checked for sufficient funds but not for the uniqueness of the transaction ID.
+**Learning:** In ledger systems without nonces or UTXO tracking, explicitly checking for duplicate transaction IDs against the entire history is necessary to prevent double-execution of the same intent.
+**Prevention:** Modified `Blockchain.add_transaction` to scan both `pending_transactions` and the entire `chain` for the incoming transaction's ID. If a duplicate is found, the transaction is rejected.
