@@ -4,7 +4,7 @@ from decimal import Decimal, InvalidOperation
 from src.blockchain import Blockchain
 from src.transaction import Transaction
 from src.wallet import Wallet
-from src.config import CURRENCY
+from src.config import CURRENCY, MINING_REWARD
 
 def main():
     print("Welcome to RandCoin! (Linked to ZAR)")
@@ -57,7 +57,7 @@ def main():
 
                 # Check for overdraft before adding (double check in UI)
                 blockchain.add_transaction(Transaction(sender, recipient, amount))
-                print("Transaction added to pool.")
+                print("✅ Transaction added to pool.")
             except InvalidOperation:
                 print("Error: Invalid amount format.")
             except ValueError as e:
@@ -68,9 +68,20 @@ def main():
             if not miner_address:
                 miner_address = my_wallet.address
 
-            print("Mining...")
+            print("⛏️  Mining...")
+
+            # Capture pending count before mining clears it
+            pending_count = len(blockchain.pending_transactions)
+
             blockchain.mine_pending_transactions(miner_address)
-            print("Block successfully mined!")
+
+            latest_block = blockchain.get_latest_block()
+            block_index = blockchain.chain.index(latest_block)
+
+            print(f"✅ Block #{block_index} successfully mined!")
+            print(f"   - Transactions processed: {pending_count} (+1 reward)")
+            print(f"   - Reward: {MINING_REWARD} {CURRENCY} to {miner_address[:8]}...")
+            print(f"   - New Hash: {latest_block.hash[:15]}...")
 
         elif choice == '4':
             address = input("Address (leave blank for your wallet): ").strip()
