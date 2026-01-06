@@ -56,15 +56,40 @@ class Block:
             "timestamp": self.timestamp
         }
 
+        # Optimization: Pre-compute string parts for faster serialization
+        # This avoids calling json.dumps in the mining loop, which is a major bottleneck.
+        # We construct the JSON string manually by updating only the nonce part.
+
+        # Create a template with a known nonce (0) to find the split point
+        temp_content = block_content.copy()
+        temp_content["nonce"] = 0
+        temp_string = json.dumps(temp_content, sort_keys=True)
+
+        # Locate the "nonce": 0 substring to split the string.
+        # This makes the optimization robust even if key order changes (e.g. if new fields are added).
+        nonce_marker = '"nonce": 0'
+        split_index = temp_string.find(nonce_marker)
+
+        if split_index == -1:
+            # Fallback if JSON format is unexpected
+            prefix = None
+            suffix = None
+        else:
+            # Prefix includes up to '"nonce": '
+            # len('"nonce": ') is 9
+            prefix = temp_string[:split_index + 9]
+            # Suffix starts after the '0'
+            suffix = temp_string[split_index + len(nonce_marker):]
+
         while self.hash[:difficulty] != target:
             self.nonce += 1
 
-            # Update nonce in the content
-            block_content["nonce"] = self.nonce
-
-            # Re-serialize. Note: In Python's json, sort_keys=True ensures consistent order.
-            # Since we constructed block_content with the same structure as calculate_hash,
-            # this produces the same string.
-            block_string = json.dumps(block_content, sort_keys=True).encode()
+            if prefix:
+                # Fast path: manual string construction
+                block_string = (prefix + str(self.nonce) + suffix).encode()
+            else:
+                # Slow path: full serialization
+                block_content["nonce"] = self.nonce
+                block_string = json.dumps(block_content, sort_keys=True).encode()
 
             self.hash = hashlib.sha256(block_string).hexdigest()
