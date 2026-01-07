@@ -56,15 +56,31 @@ class Block:
             "timestamp": self.timestamp
         }
 
-        while self.hash[:difficulty] != target:
-            self.nonce += 1
+        # Optimization: Pre-compute static parts of the JSON string
+        # We use a placeholder nonce of 0 to locate the split point
+        block_content["nonce"] = 0
+        temp_string = json.dumps(block_content, sort_keys=True)
+        nonce_marker = '"nonce": 0'
+        nonce_pos = temp_string.find(nonce_marker)
 
-            # Update nonce in the content
-            block_content["nonce"] = self.nonce
+        if nonce_pos != -1:
+            # "nonce": 0
+            # ^ starts here
+            prefix = temp_string[:nonce_pos + len('"nonce": ')]
+            suffix = temp_string[nonce_pos + len(nonce_marker):]
 
-            # Re-serialize. Note: In Python's json, sort_keys=True ensures consistent order.
-            # Since we constructed block_content with the same structure as calculate_hash,
-            # this produces the same string.
-            block_string = json.dumps(block_content, sort_keys=True).encode()
+            prefix_bytes = prefix.encode()
+            suffix_bytes = suffix.encode()
 
-            self.hash = hashlib.sha256(block_string).hexdigest()
+            while self.hash[:difficulty] != target:
+                self.nonce += 1
+                # Construct bytes directly to avoid repeated encoding of static parts
+                block_string = prefix_bytes + str(self.nonce).encode() + suffix_bytes
+                self.hash = hashlib.sha256(block_string).hexdigest()
+        else:
+            # Fallback (should not happen with standard json.dumps)
+            while self.hash[:difficulty] != target:
+                self.nonce += 1
+                block_content["nonce"] = self.nonce
+                block_string = json.dumps(block_content, sort_keys=True).encode()
+                self.hash = hashlib.sha256(block_string).hexdigest()
