@@ -1,6 +1,7 @@
 import unittest
 from decimal import Decimal
 from src.transaction import Transaction
+from src.blockchain import Blockchain
 
 class TestTransactionSecurity(unittest.TestCase):
     def test_immutability(self):
@@ -41,6 +42,20 @@ class TestTransactionSecurity(unittest.TestCase):
         # Empty recipient
         with self.assertRaises(ValueError):
             Transaction("Alice", "", Decimal(10))
+
+    def test_replay_protection(self):
+        """
+        Verify that the same transaction cannot be added twice (Replay Protection).
+        """
+        bc = Blockchain()
+        # Create a valid transaction. Use "System" to skip balance check, focusing on replay logic.
+        tx = Transaction("System", "Alice", Decimal(10))
+
+        bc.add_transaction(tx)
+
+        # Try to add the exact same transaction object again
+        with self.assertRaisesRegex(ValueError, "Transaction already exists"):
+            bc.add_transaction(tx)
 
 if __name__ == '__main__':
     unittest.main()
