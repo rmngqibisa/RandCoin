@@ -56,15 +56,32 @@ class Block:
             "timestamp": self.timestamp
         }
 
-        while self.hash[:difficulty] != target:
-            self.nonce += 1
+        # Optimization: Pre-calculate the static part of the JSON string.
+        # Since keys are sorted, "nonce" (n) comes before "previous_hash" (p), "timestamp" (t), and "transactions" (t).
+        # So the string starts with {"nonce": 0, ...
+        # We can construct the string manually to avoid O(N) serialization in the loop.
+        block_content["nonce"] = 0
+        static_json = json.dumps(block_content, sort_keys=True)
 
-            # Update nonce in the content
+        prefix_check = '{"nonce": '
+        if static_json.startswith(prefix_check):
+            # Fast path
+            comma_index = static_json.find(',')
+            suffix = static_json[comma_index:]
+            prefix = prefix_check
+
+            while self.hash[:difficulty] != target:
+                self.nonce += 1
+                # Fast string construction: O(1) instead of O(N)
+                block_string = (prefix + str(self.nonce) + suffix).encode()
+                self.hash = hashlib.sha256(block_string).hexdigest()
+
+            # Update the block_content nonce at the end for consistency
             block_content["nonce"] = self.nonce
-
-            # Re-serialize. Note: In Python's json, sort_keys=True ensures consistent order.
-            # Since we constructed block_content with the same structure as calculate_hash,
-            # this produces the same string.
-            block_string = json.dumps(block_content, sort_keys=True).encode()
-
-            self.hash = hashlib.sha256(block_string).hexdigest()
+        else:
+            # Fallback (should not happen with current keys, but safe)
+            while self.hash[:difficulty] != target:
+                self.nonce += 1
+                block_content["nonce"] = self.nonce
+                block_string = json.dumps(block_content, sort_keys=True).encode()
+                self.hash = hashlib.sha256(block_string).hexdigest()
