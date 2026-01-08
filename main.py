@@ -68,9 +68,18 @@ def main():
             if not miner_address:
                 miner_address = my_wallet.address
 
-            print("Mining...")
+            print("Mining... ⛏️")
+            start_time = datetime.datetime.now()
             blockchain.mine_pending_transactions(miner_address)
-            print("Block successfully mined!")
+            end_time = datetime.datetime.now()
+            duration = (end_time - start_time).total_seconds()
+
+            new_block = blockchain.get_latest_block()
+
+            print(f"\n✅ Block successfully mined!")
+            print(f"   ⏱️  Time taken:   {duration:.2f}s")
+            print(f"   🧱 Block Hash:   {new_block.hash}")
+            print(f"   📝 Transactions: {len(new_block.transactions)}")
 
         elif choice == '4':
             address = input("Address (leave blank for your wallet): ").strip()
