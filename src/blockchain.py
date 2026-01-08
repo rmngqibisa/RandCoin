@@ -29,6 +29,26 @@ class Blockchain:
         """
         return self.chain[-1]
 
+    def is_transaction_exists(self, transaction_id: str) -> bool:
+        """
+        Check if a transaction already exists in the blockchain or pending pool.
+
+        :param transaction_id: The ID of the transaction to check.
+        :return: True if the transaction exists, False otherwise.
+        """
+        # Check pending transactions
+        for tx in self.pending_transactions:
+            if tx.id == transaction_id:
+                return True
+
+        # Check committed blocks
+        for block in self.chain:
+            for tx in block.transactions:
+                if tx.id == transaction_id:
+                    return True
+
+        return False
+
     def add_transaction(self, transaction: Transaction):
         """
         Add a transaction to the pending pool after validation.
@@ -38,6 +58,10 @@ class Blockchain:
         """
         if transaction.amount <= 0:
             raise ValueError("Transaction amount must be positive.")
+
+        # Check for replay attacks
+        if self.is_transaction_exists(transaction.id):
+            raise ValueError("Transaction already exists.")
 
         # Verify Sender Balance (skip check for system/genesis)
         if transaction.sender not in ["genesis", "System"]:
