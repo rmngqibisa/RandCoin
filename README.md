@@ -65,7 +65,7 @@ We take code quality and security seriously.
 
 ## 🌍 Connect & Support
 
-*   **Project Website**: [Azanian Eagle](https://azanian-eagle.github.io/RandCoin/)
+*   **Project Website**: [Azanian Eagle](https://rmngqibisa.github.io/RandCoin/)
 *   **Founder/Maintainer**: [rmngqibisa](https://github.com/rmngqibisa)
 *   **Support the Vision**:
 
