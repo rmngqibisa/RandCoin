@@ -36,8 +36,9 @@
             </div>
             <div class="nav-links">
                 <a href="#features">Features</a>
+                <a href="#use-cases">Use Cases</a>
                 <a href="#code">Code</a>
-                <a href="#install">Install</a>
+                <a href="#faq">FAQ</a>
                 <a href="#vision">Vision</a>
             </div>
         </nav>
@@ -56,7 +57,7 @@
                     <strong>Power to the Code.</strong>
                 </p>
                 <div class="hero-cta">
-                    <a href="https://github.com/rmngqibisa/Eagle-s-Choice" class="btn btn-primary"><i class="fab fa-github"></i> Source Code</a>
+                    <a href="https://github.com/rmngqibisa/RandCoin" class="btn btn-primary"><i class="fab fa-github"></i> Source Code</a>
                     <a href="#install" class="btn btn-secondary">Get Started</a>
                 </div>
             </div>
@@ -65,7 +66,7 @@
         <!-- Technical Might (Features) -->
         <section id="features">
             <div class="section-header">
-                <h2>Technical Might</h2>
+                <h2>Technical Architecture</h2>
                 <p>Engineered for sovereignty. No bloat. Pure Power.</p>
             </div>
 
@@ -73,30 +74,52 @@
                 <div class="feature-card tilt-effect">
                     <div class="card-content">
                         <i class="fas fa-coins feature-icon"></i>
-                        <h3>ZAR Native</h3>
-                        <p>The first blockchain explicitly designed for the South African Rand ecosystem.</p>
+                        <h3>ZAR Native Integration</h3>
+                        <p>RandCoin is the first blockchain reference implementation explicitly designed for the South African Rand ecosystem. All internal accounting, rewards, and transaction fees are calculated in ZAR, creating a direct bridge between traditional finance concepts and decentralized ledger technology.</p>
                     </div>
                 </div>
                 <div class="feature-card tilt-effect">
                     <div class="card-content">
                         <i class="fas fa-microchip feature-icon"></i>
-                        <h3>Pure Python</h3>
-                        <p>Zero external dependencies. Runs on any machine with Python 3 installed. Transparent logic.</p>
+                        <h3>Zero-Dependency Python</h3>
+                        <p>We reject the complexity of modern dependency chains. RandCoin runs on standard Python libraries alone (<code>hashlib</code>, <code>json</code>, <code>time</code>, <code>unittest</code>). This ensures long-term archivability, ease of audit, and the ability to run on any hardware that supports Python 3.</p>
                     </div>
                 </div>
                 <div class="feature-card tilt-effect">
                     <div class="card-content">
                         <i class="fas fa-shield-alt feature-icon"></i>
-                        <h3>Bank-Grade Security</h3>
-                        <p>O(N) Replay Protection, SHA-256 Proof of Work, and Decimal precision for financial accuracy.</p>
+                        <h3>Cryptographic Integrity</h3>
+                        <p>Security is not an afterthought. We implement O(N) Replay Protection to prevent double-spending attacks. Our Proof of Work algorithm utilizes SHA-256 with adjustable difficulty, ensuring that the ledger remains immutable and tamper-evident against malicious actors.</p>
                     </div>
                 </div>
                 <div class="feature-card tilt-effect">
                     <div class="card-content">
-                        <i class="fas fa-terminal feature-icon"></i>
-                        <h3>Interactive CLI</h3>
-                        <p>A robust Command Line Interface for mining, transacting, and exploring the chain.</p>
+                        <i class="fas fa-calculator feature-icon"></i>
+                        <h3>Financial Precision</h3>
+                        <p>Floating point errors are unacceptable in finance. RandCoin utilizes Python's <code>decimal.Decimal</code> for all monetary operations, guaranteeing distinct precision and eliminating the rounding errors common in standard floating-point arithmetic.</p>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Use Cases -->
+        <section id="use-cases">
+            <div class="section-header">
+                <h2>Use Cases</h2>
+                <p>Real-world applications for the RandCoin architecture.</p>
+            </div>
+            <div class="use-case-grid">
+                <div class="use-case-item">
+                    <h3>📚 Educational Pedagogy</h3>
+                    <p>RandCoin serves as the perfect "textbook" blockchain. Its clean, dependency-free code allows students and universities across Africa to dissect the anatomy of a blockchain—understanding mining, consensus, and hashing—without the noise of complex frameworks.</p>
+                </div>
+                <div class="use-case-item">
+                    <h3>🔬 Financial Research</h3>
+                    <p>Economists and fintech developers can use RandCoin to simulate local economies. By adjusting mining rewards, difficulties, and transaction volumes, researchers can model the velocity of money within a closed ZAR-based digital ecosystem.</p>
+                </div>
+                <div class="use-case-item">
+                    <h3>🏢 Private Ledgers</h3>
+                    <p>Organizations can fork RandCoin to create internal, immutable audit logs. The lightweight nature of the code makes it ideal for tracking supply chain provenance or inter-departmental settlements where a heavy public chain is unnecessary.</p>
                 </div>
             </div>
         </section>
@@ -145,7 +168,7 @@
             <div class="install-steps">
                 <div class="step">
                     <h3>1. Clone</h3>
-                    <div class="cmd">git clone https://github.com/rmngqibisa/Eagle-s-Choice.git</div>
+                    <div class="cmd">git clone https://github.com/rmngqibisa/RandCoin.git</div>
                 </div>
                 <div class="step">
                     <h3>2. Run</h3>
@@ -154,6 +177,32 @@
                 <div class="step">
                     <h3>3. Mine</h3>
                     <p>Follow the interactive prompts to start mining ZAR on your local machine.</p>
+                </div>
+            </div>
+        </section>
+
+         <!-- FAQ / Details -->
+         <section id="faq">
+            <div class="section-header">
+                <h2>Frequently Asked Questions</h2>
+                <p>Understanding the Eagle's Choice.</p>
+            </div>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h4>Why is it "ZAR Linked"?</h4>
+                    <p>We believe digital sovereignty starts with local relevance. Most blockchains default to USD or abstract tokens. RandCoin defaults to ZAR to demonstrate that African currencies can be first-class citizens in digital ledger technology.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Is this suitable for production use?</h4>
+                    <p>RandCoin is a robust reference implementation. While it implements real cryptographic security and mining mechanics, it is currently designed as a single-node simulation. Future versions may introduce P2P networking capabilities.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Why use standard Python libraries only?</h4>
+                    <p>Security and auditability. External dependencies introduce supply chain risks. By using only the Python Standard Library, we ensure that the code you read is exactly the code you run, with no hidden "black boxes."</p>
+                </div>
+                <div class="faq-item">
+                    <h4>How does the mining difficulty work?</h4>
+                    <p>The difficulty determines how many leading zeros the block hash must have. As more blocks are mined, this can be adjusted to maintain a steady block time, similar to Bitcoin's difficulty adjustment algorithm.</p>
                 </div>
             </div>
         </section>
@@ -172,21 +221,6 @@
             </div>
         </section>
 
-         <!-- FAQ / Details -->
-         <section id="faq">
-            <h2>Project Details</h2>
-            <div class="faq-grid">
-                <div class="faq-item">
-                    <h4>Why Python?</h4>
-                    <p>Accessibility and clarity. We want every developer in Azania to be able to read, understand, and contribute to this financial engine.</p>
-                </div>
-                <div class="faq-item">
-                    <h4>Is it real money?</h4>
-                    <p>It is a simulation linked to the ZAR value concept, intended for educational and research purposes in blockchain technology.</p>
-                </div>
-            </div>
-        </section>
-
         <!-- Footer -->
         <footer>
             <div class="footer-content">
@@ -197,17 +231,18 @@
                 </div>
 
                 <div class="footer-links">
-                    <h4>Explore</h4>
+                    <h4>Project</h4>
                     <ul>
-                        <li><a href="https://azanian-eagle.github.io/Eagle-s-Choice/"><i class="fas fa-globe"></i> azanian-eagle.github.io</a></li>
-                        <li><a href="https://github.com/rmngqibisa"><i class="fab fa-github"></i> @rmngqibisa</a></li>
+                        <li><a href="https://github.com/rmngqibisa/RandCoin"><i class="fab fa-github"></i> Source Code</a></li>
+                        <li><a href="https://azanian-eagle.github.io/Eagle-s-Choice/"><i class="fas fa-globe"></i> Documentation</a></li>
+                        <li><a href="#install">Get Started</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-links">
-                    <h4>Support</h4>
+                    <h4>Connect</h4>
                     <ul>
-                        <li><a href="https://buymeacoffee.com/azanianeagle" class="highlight-link"><i class="fas fa-coffee"></i> Buy Me A Coffee</a></li>
+                        <li><a href="https://github.com/rmngqibisa"><i class="fab fa-github"></i> @rmngqibisa</a></li>
                     </ul>
                 </div>
             </div>
