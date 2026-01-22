@@ -7,7 +7,12 @@ from src.wallet import Wallet
 from src.config import CURRENCY
 
 def main():
-    print("Welcome to RandCoin! (Linked to ZAR)")
+    print("==========================================")
+    print("       RandCoin 🪙  - ZAR Linked          ")
+    print("   The Apex of African Digital Excellence ")
+    print("==========================================")
+    print("Tags: [Blockchain] [Python] [ZAR] [FinTech]")
+    print("")
     blockchain = Blockchain()
 
     # Create a default wallet for the user (simulation)
