@@ -7,7 +7,7 @@
 
     <!-- Meta Tags -->
     <meta name="description" content="RandCoin: A robust, pure-Python blockchain implementation linked to the South African Rand (ZAR). Zero dependencies, infinite potential.">
-    <meta name="keywords" content="blockchain, python, ZAR, fintech, open source, south africa, crypto">
+    <meta name="keywords" content="blockchain, python, ZAR, fintech, open source, south africa, crypto, azanian eagle">
     <meta name="author" content="Azanian Eagle">
 
     <!-- Fonts -->
@@ -22,65 +22,107 @@
 </head>
 <body>
 
+    <!-- Background Elements -->
+    <div class="bg-glow top-left"></div>
+    <div class="bg-glow bottom-right"></div>
+
     <div class="container">
 
+        <!-- Navigation -->
+        <nav>
+            <div class="logo-small">
+                <img src="assets/logo.png" alt="Azanian Eagle Logo">
+                <span>Azanian Eagle</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#code">Code</a>
+                <a href="#install">Install</a>
+                <a href="#vision">Vision</a>
+            </div>
+        </nav>
+
         <!-- Hero Section -->
-        <header>
-            <p class="hero-pre">Hi, we are the Azanian Eagle team.</p>
-            <h1 class="hero-title">RandCoin.</h1>
-            <h2 class="hero-subtitle">The Apex of African Digital Excellence.</h2>
-            <p class="hero-desc">
-                A cryptographically secure, pure-Python blockchain implementation.
-                Explicitly linked to the ZAR to demonstrate financial sovereignty through code.
-                Zero dependencies. 100% Open Source.
-            </p>
-            <a href="https://github.com/rmngqibisa/Eagle-s-Choice" class="btn-hero">Check out the Code</a>
+        <header class="hero">
+            <div class="hero-content">
+                <div class="hero-logo-container tilt-effect">
+                    <img src="assets/logo.png" alt="RandCoin Logo" class="hero-logo">
+                </div>
+                <h1 class="hero-title glitch" data-text="RandCoin">RandCoin</h1>
+                <h2 class="hero-subtitle">The Apex of African Digital Excellence</h2>
+                <p class="hero-desc">
+                    Forged in the heart of Azania. A cryptographically secure, pure-Python blockchain.
+                    Explicitly linked to the ZAR. Zero dependencies.
+                    <strong>Power to the Code.</strong>
+                </p>
+                <div class="hero-cta">
+                    <a href="https://github.com/rmngqibisa/Eagle-s-Choice" class="btn btn-primary"><i class="fab fa-github"></i> Source Code</a>
+                    <a href="#install" class="btn btn-secondary">Get Started</a>
+                </div>
+            </div>
         </header>
 
         <!-- Technical Might (Features) -->
         <section id="features">
-            <h2>Technical Might</h2>
-            <p>Built with precision, RandCoin rejects bloat in favor of raw, understandable, and robust engineering.</p>
+            <div class="section-header">
+                <h2>Technical Might</h2>
+                <p>Engineered for sovereignty. No bloat. Pure Power.</p>
+            </div>
 
             <div class="feature-grid">
-                <div class="feature-card">
-                    <i class="fas fa-coins feature-icon"></i>
-                    <h3>ZAR Linked</h3>
-                    <p>Designed for the African ecosystem. All transactions and rewards are natively calculated in South African Rand.</p>
+                <div class="feature-card tilt-effect">
+                    <div class="card-content">
+                        <i class="fas fa-coins feature-icon"></i>
+                        <h3>ZAR Native</h3>
+                        <p>The first blockchain explicitly designed for the South African Rand ecosystem.</p>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <i class="fas fa-calculator feature-icon"></i>
-                    <h3>Decimal Precision</h3>
-                    <p>Floating point errors are unacceptable in finance. We use <code>decimal.Decimal</code> for absolute accuracy.</p>
+                <div class="feature-card tilt-effect">
+                    <div class="card-content">
+                        <i class="fas fa-microchip feature-icon"></i>
+                        <h3>Pure Python</h3>
+                        <p>Zero external dependencies. Runs on any machine with Python 3 installed. Transparent logic.</p>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <i class="fas fa-shield-alt feature-icon"></i>
-                    <h3>Replay Protection</h3>
-                    <p>O(N) history scanning ensures that no transaction can be duplicated or replayed by malicious actors.</p>
+                <div class="feature-card tilt-effect">
+                    <div class="card-content">
+                        <i class="fas fa-shield-alt feature-icon"></i>
+                        <h3>Bank-Grade Security</h3>
+                        <p>O(N) Replay Protection, SHA-256 Proof of Work, and Decimal precision for financial accuracy.</p>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <i class="fas fa-cubes feature-icon"></i>
-                    <h3>Proof of Work</h3>
-                    <p>A custom SHA-256 implementation with adjustable difficulty to secure the ledger against tampering.</p>
+                <div class="feature-card tilt-effect">
+                    <div class="card-content">
+                        <i class="fas fa-terminal feature-icon"></i>
+                        <h3>Interactive CLI</h3>
+                        <p>A robust Command Line Interface for mining, transacting, and exploring the chain.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Code Showcase -->
-        <section id="code">
-            <h2>The Code</h2>
-            <p>See the elegance of the mining algorithm. No black boxes.</p>
-
-            <div class="code-window">
-                <div class="code-header">
-                    <div class="dot red"></div>
-                    <div class="dot yellow"></div>
-                    <div class="dot green"></div>
+        <section id="code" class="glass-panel">
+            <div class="split-layout">
+                <div class="text-content">
+                    <h2>Transparent Engineering</h2>
+                    <p>We believe in code that speaks for itself. Review the core mining logic—simple, effective, and secure.</p>
+                    <ul class="tech-list">
+                        <li><i class="fas fa-check"></i> <code>hashlib</code> for SHA-256</li>
+                        <li><i class="fas fa-check"></i> <code>decimal</code> for Currency</li>
+                        <li><i class="fas fa-check"></i> <code>json</code> for Serialization</li>
+                    </ul>
                 </div>
-                <pre><code><span class="kw">def</span> <span class="fn">mine_pending_transactions</span>(<span class="kw">self</span>, <span class="num">miner_address</span>):
+                <div class="code-window tilt-effect">
+                    <div class="code-header">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                        <span class="filename">blockchain.py</span>
+                    </div>
+                    <pre><code><span class="kw">def</span> <span class="fn">mine_pending_transactions</span>(<span class="kw">self</span>, <span class="num">miner_address</span>):
     <span class="str">"""Mines transactions and rewards the miner."""</span>
 
-    <span class="co"># Package transactions into a new Block</span>
     <span class="num">block</span> = <span class="cls">Block</span>(
         <span class="kw">len</span>(<span class="kw">self</span>.chain),
         <span class="kw">self</span>.get_latest_block().hash,
@@ -89,35 +131,121 @@
         <span class="kw">self</span>.difficulty
     )
 
-    <span class="co"># Prove Work</span>
-    <span class="num">block</span>.mine()
+    <span class="num">block</span>.mine() <span class="co"># Proof of Work</span>
+    <span class="kw">self</span>.chain.append(<span class="num">block</span>)</code></pre>
+                </div>
+            </div>
+        </section>
 
-    <span class="co"># Validate & Append</span>
-    <span class="kw">self</span>.chain.append(<span class="num">block</span>)
-    <span class="kw">self</span>.pending_transactions = []</code></pre>
+        <!-- Installation -->
+        <section id="install">
+            <div class="section-header">
+                <h2>Installation & Usage</h2>
+            </div>
+            <div class="install-steps">
+                <div class="step">
+                    <h3>1. Clone</h3>
+                    <div class="cmd">git clone https://github.com/rmngqibisa/Eagle-s-Choice.git</div>
+                </div>
+                <div class="step">
+                    <h3>2. Run</h3>
+                    <div class="cmd">python3 main.py</div>
+                </div>
+                <div class="step">
+                    <h3>3. Mine</h3>
+                    <p>Follow the interactive prompts to start mining ZAR on your local machine.</p>
+                </div>
             </div>
         </section>
 
         <!-- Vision / About -->
         <section id="vision">
             <h2>The Vision</h2>
-            <p>
-                The digital economy is the next frontier. <strong>RandCoin</strong> is not just software; it is a pedagogical tool and a statement of capability.
-                Built by the founders of the <strong>Apex of African Digital Excellence</strong>, it serves as a reference implementation for future financial technologies in Azania.
-            </p>
+            <div class="vision-content">
+                <p>
+                    <strong>RandCoin</strong> is a statement. A statement that Africa is not just a consumer of technology, but a creator.
+                    Built by the <strong>Apex of African Digital Excellence</strong>, this project serves as a beacon for what is possible when passion meets precision.
+                </p>
+                <p>
+                    We are building the future of digital sovereignty, one block at a time.
+                </p>
+            </div>
+        </section>
+
+         <!-- FAQ / Details -->
+         <section id="faq">
+            <h2>Project Details</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h4>Why Python?</h4>
+                    <p>Accessibility and clarity. We want every developer in Azania to be able to read, understand, and contribute to this financial engine.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Is it real money?</h4>
+                    <p>It is a simulation linked to the ZAR value concept, intended for educational and research purposes in blockchain technology.</p>
+                </div>
+            </div>
         </section>
 
         <!-- Footer -->
         <footer>
-            <div class="social-links">
-                <a href="https://github.com/rmngqibisa/Eagle-s-Choice" title="GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://buymeacoffee.com/azanianeagle" title="Support Us"><i class="fas fa-coffee"></i></a>
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/logo.png" alt="Logo" class="footer-logo">
+                    <h3>Azanian Eagle</h3>
+                    <p>The Eagle's Choice.</p>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="https://azanian-eagle.github.io/Eagle-s-Choice/"><i class="fas fa-globe"></i> azanian-eagle.github.io</a></li>
+                        <li><a href="https://github.com/rmngqibisa"><i class="fab fa-github"></i> @rmngqibisa</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="https://buymeacoffee.com/azanianeagle" class="highlight-link"><i class="fas fa-coffee"></i> Buy Me A Coffee</a></li>
+                    </ul>
+                </div>
             </div>
-            <p>Designed & Built by <a href="https://github.com/rmngqibisa">@rmngqibisa</a>.</p>
-            <p>&copy; 2024 Azanian Eagle.</p>
+
+            <div class="footer-bottom">
+                <p>&copy; <span id="year"></span> Azanian Eagle. All Rights Reserved.</p>
+                <p>Designed with <i class="fas fa-bolt" style="color: var(--teal)"></i> by the Apex of African Digital Excellence.</p>
+            </div>
         </footer>
 
     </div>
 
+    <!-- Scripts -->
+    <script>
+        // Dynamic Year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Simple Tilt Effect for Cards
+        const cards = document.querySelectorAll('.tilt-effect');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = ((y - centerY) / centerY) * -10; // Max 10deg
+                const rotateY = ((x - centerX) / centerX) * 10;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+        });
+    </script>
 </body>
 </html>
