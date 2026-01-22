@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from decimal import Decimal
 from src.block import Block
 from src.transaction import Transaction
@@ -15,6 +15,24 @@ class Blockchain:
         self.chain: List[Block] = [self.create_genesis_block()]
         self.pending_transactions: List[Transaction] = []
         self.difficulty = MINING_DIFFICULTY
+        self.balances: Dict[str, Decimal] = {}
+        # Initialize balance cache with genesis block
+        self._update_balance_from_block(self.chain[0])
+
+    def _update_balance_from_block(self, block: Block):
+        """
+        Update the local balance cache based on transactions in the block.
+        """
+        for tx in block.transactions:
+            # Credit recipient
+            if tx.recipient not in self.balances:
+                self.balances[tx.recipient] = Decimal(0)
+            self.balances[tx.recipient] += tx.amount
+
+            # Debit sender
+            if tx.sender not in self.balances:
+                self.balances[tx.sender] = Decimal(0)
+            self.balances[tx.sender] -= tx.amount
 
     def create_genesis_block(self) -> Block:
         """
@@ -61,37 +79,17 @@ class Blockchain:
         new_block.mine(self.difficulty)
 
         self.chain.append(new_block)
+        self._update_balance_from_block(new_block)
         self.pending_transactions = []
 
     def get_balance(self, address: str) -> Decimal:
         """
-        Calculate the balance of an address by iterating through the chain.
+        Get the balance of an address from the local cache.
 
         :param address: The address to check.
         :return: The current balance.
         """
-        balance = Decimal(0)
-        # Check committed blocks
-        for block in self.chain:
-            for tx in block.transactions:
-                if tx.recipient == address:
-                    balance += tx.amount
-                if tx.sender == address:
-                    balance -= tx.amount
-
-        # Also check pending transactions to prevent double spending?
-        # A "formal" blockchain usually deducts from balance only when confirmed,
-        # but to prevent double submission to the pending pool, we should check pending too.
-        # However, for simplicity and standard logic:
-        #   - Balance is usually confirmed balance.
-        #   - But `add_transaction` must check if (Confirmed Balance - Pending Outgoing) >= Amount.
-
-        # Let's verify pending outgoing transactions
-        pending_outgoing = sum(t.amount for t in self.pending_transactions if t.sender == address)
-
-        # We return the CONFIRMED balance here.
-        # But `add_transaction` should account for `pending_outgoing`.
-        return balance
+        return self.balances.get(address, Decimal(0))
 
     def get_spendable_balance(self, address: str) -> Decimal:
         """
