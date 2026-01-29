@@ -32,6 +32,16 @@ class Transaction:
         self._timestamp = timestamp or time.time()
         self._id = self.calculate_hash()
 
+        # Bolt Optimization: Cache the dictionary representation to avoid
+        # repeated dictionary creation and float conversion during mining/validation.
+        self._cached_dict = {
+            "id": self._id,
+            "sender": self._sender,
+            "recipient": self._recipient,
+            "amount": float(self._amount),
+            "timestamp": self._timestamp
+        }
+
     @property
     def sender(self) -> str:
         return self._sender
@@ -69,13 +79,7 @@ class Transaction:
         """
         Convert the transaction to a dictionary.
         """
-        return {
-            "id": self._id,
-            "sender": self._sender,
-            "recipient": self._recipient,
-            "amount": float(self._amount),
-            "timestamp": self._timestamp
-        }
+        return self._cached_dict.copy()
 
     def __repr__(self) -> str:
         return f"<Transaction {self._id[:8]}... {self._sender} -> {self._recipient}: {self._amount}>"
