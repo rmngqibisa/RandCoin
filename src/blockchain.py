@@ -66,10 +66,11 @@ class Blockchain:
 
         self.pending_transactions.append(transaction)
 
-        # Update pending outflows cache
-        if transaction.sender not in self.pending_outflows:
-            self.pending_outflows[transaction.sender] = Decimal(0)
-        self.pending_outflows[transaction.sender] += transaction.amount
+        # Update pending outflows cache only for non-system/genesis senders
+        if transaction.sender not in ["genesis", "System"]:
+            if transaction.sender not in self.pending_outflows:
+                self.pending_outflows[transaction.sender] = Decimal(0)
+            self.pending_outflows[transaction.sender] += transaction.amount
 
     def mine_pending_transactions(self, miner_address: str):
         """
