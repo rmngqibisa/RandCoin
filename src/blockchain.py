@@ -4,6 +4,9 @@ from src.block import Block
 from src.transaction import Transaction
 from src.config import MINING_DIFFICULTY, MINING_REWARD, CURRENCY
 
+# System senders that don't require balance validation
+SYSTEM_SENDERS = ["genesis", "System"]
+
 class Blockchain:
     """
     Represents the RandCoin blockchain.
@@ -59,17 +62,18 @@ class Blockchain:
             raise ValueError("Transaction amount must be positive.")
 
         # Verify Sender Balance (skip check for system/genesis)
-        if transaction.sender not in ["genesis", "System"]:
+        if transaction.sender not in SYSTEM_SENDERS:
             spendable_balance = self.get_spendable_balance(transaction.sender)
             if spendable_balance < transaction.amount:
                 raise ValueError(f"Insufficient funds. Spendable Balance: {spendable_balance} {CURRENCY}, Required: {transaction.amount} {CURRENCY}")
 
         self.pending_transactions.append(transaction)
 
-        # Update pending outflows cache
-        if transaction.sender not in self.pending_outflows:
-            self.pending_outflows[transaction.sender] = Decimal(0)
-        self.pending_outflows[transaction.sender] += transaction.amount
+        # Update pending outflows cache only for non-system/genesis senders
+        if transaction.sender not in SYSTEM_SENDERS:
+            if transaction.sender not in self.pending_outflows:
+                self.pending_outflows[transaction.sender] = Decimal(0)
+            self.pending_outflows[transaction.sender] += transaction.amount
 
     def mine_pending_transactions(self, miner_address: str):
         """
