@@ -16,6 +16,9 @@ class Blockchain:
         self.pending_transactions: List[Transaction] = []
         self.difficulty = MINING_DIFFICULTY
         self.balances: Dict[str, Decimal] = {}
+        # Bolt Optimization: Cache pending outflows to avoid O(N) scan in get_spendable_balance
+        # making validation O(1) instead of O(N) relative to pending pool size.
+        self.pending_outflows: Dict[str, Decimal] = {}
         # Initialize balance cache with genesis block
         self._update_balance_from_block(self.chain[0])
 
@@ -65,6 +68,10 @@ class Blockchain:
 
         self.pending_transactions.append(transaction)
 
+        # Update pending outflows cache
+        current_outflow = self.pending_outflows.get(transaction.sender, Decimal(0))
+        self.pending_outflows[transaction.sender] = current_outflow + transaction.amount
+
     def mine_pending_transactions(self, miner_address: str):
         """
         Mine all pending transactions into a new block.
@@ -81,6 +88,7 @@ class Blockchain:
         self.chain.append(new_block)
         self._update_balance_from_block(new_block)
         self.pending_transactions = []
+        self.pending_outflows.clear()
 
     def get_balance(self, address: str) -> Decimal:
         """
@@ -96,7 +104,8 @@ class Blockchain:
         Get balance considering pending transactions.
         """
         balance = self.get_balance(address)
-        pending_outgoing = sum(t.amount for t in self.pending_transactions if t.sender == address)
+        # Bolt Optimization: Use cached pending outflows for O(1) lookup
+        pending_outgoing = self.pending_outflows.get(address, Decimal(0))
         return balance - pending_outgoing
 
     def is_chain_valid(self) -> bool:
