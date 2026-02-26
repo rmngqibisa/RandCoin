@@ -75,11 +75,15 @@ class Transaction:
         tx_string = json.dumps(tx_content, sort_keys=True).encode()
         return hashlib.sha256(tx_string).hexdigest()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, copy: bool = True) -> Dict[str, Any]:
         """
         Convert the transaction to a dictionary.
+
+        :param copy: Whether to return a copy or a direct reference.
         """
-        return self._cached_dict.copy()
+        if copy:
+            return self._cached_dict.copy()
+        return self._cached_dict
 
     def __repr__(self) -> str:
         return f"<Transaction {self._id[:8]}... {self._sender} -> {self._recipient}: {self._amount}>"
