@@ -26,14 +26,16 @@ class Block:
         """
         Calculate the SHA-256 hash of the block.
         """
+        # Bolt Optimization: Construct dict with alphabetically sorted keys
+        # to avoid O(N log N) recursive sorting in json.dumps
         block_content = {
-            "transactions": [t.to_dict() for t in self.transactions],
-            "previous_hash": self.previous_hash,
             "nonce": self.nonce,
-            "timestamp": self.timestamp
+            "previous_hash": self.previous_hash,
+            "timestamp": self.timestamp,
+            "transactions": [t.to_dict() for t in self.transactions]
         }
-        # Sort keys to ensure consistent hashing
-        block_string = json.dumps(block_content, sort_keys=True).encode()
+        # Keys are pre-sorted, use separators=(', ', ': ') to match sort_keys=True output
+        block_string = json.dumps(block_content, separators=(', ', ': ')).encode()
         return hashlib.sha256(block_string).hexdigest()
 
     def mine(self, difficulty: int):
@@ -57,9 +59,9 @@ class Block:
         # We assume "nonce" is the first key when sorted alphabetically (default json behavior).
         # We verify this assumption to ensure correctness.
         static_content = {
-            "transactions": tx_list,
             "previous_hash": self.previous_hash,
-            "timestamp": self.timestamp
+            "timestamp": self.timestamp,
+            "transactions": tx_list
         }
 
         # Determine if "nonce" would be the first key
@@ -70,10 +72,10 @@ class Block:
         if keys[0] != "nonce":
             # Fallback to slow path if schema changes and nonce is no longer first
             block_content = {
-                "transactions": tx_list,
-                "previous_hash": self.previous_hash,
                 "nonce": self.nonce,
-                "timestamp": self.timestamp
+                "previous_hash": self.previous_hash,
+                "timestamp": self.timestamp,
+                "transactions": tx_list
             }
             while self.hash[:difficulty] != target:
                 self.nonce += 1
@@ -89,7 +91,7 @@ class Block:
         # json.dumps(static_content) -> {"previous_hash": ...}
         # We need: , "previous_hash": ...
         # So we take the dump of static_content, strip the opening '{', and prepend ", "
-        suffix = ", " + json.dumps(static_content, sort_keys=True)[1:]
+        suffix = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
         prefix = '{"nonce": '
 
         while self.hash[:difficulty] != target:
