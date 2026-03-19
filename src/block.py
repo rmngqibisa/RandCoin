@@ -89,11 +89,26 @@ class Block:
         # json.dumps(static_content) -> {"previous_hash": ...}
         # We need: , "previous_hash": ...
         # So we take the dump of static_content, strip the opening '{', and prepend ", "
-        suffix = ", " + json.dumps(static_content, sort_keys=True)[1:]
-        prefix = '{"nonce": '
+        # ⚡ Bolt Optimization: Use byte formatting to skip .encode() in the loop and hoist local vars
+        suffix_bytes = (", " + json.dumps(static_content, sort_keys=True)[1:]).encode()
 
-        while self.hash[:difficulty] != target:
-            self.nonce += 1
-            # String concatenation is much faster than full JSON serialization
-            block_string = (prefix + str(self.nonce) + suffix).encode()
-            self.hash = hashlib.sha256(block_string).hexdigest()
+        # Escape any '%' characters in the suffix to prevent format string vulnerabilities
+        suffix_bytes = suffix_bytes.replace(b"%", b"%%")
+
+        prefix_bytes = b'{"nonce": '
+        template = prefix_bytes + b"%d" + suffix_bytes
+
+        # Hoist variables for faster access inside the tight loop
+        hash_val = self.hash
+        nonce = self.nonce
+        sha256 = hashlib.sha256
+
+        while not hash_val.startswith(target):
+            nonce += 1
+            # Byte formatting is much faster than string concatenation + encoding
+            block_string = template % nonce
+            hash_val = sha256(block_string).hexdigest()
+
+        # Update instance variables after the loop completes
+        self.nonce = nonce
+        self.hash = hash_val
