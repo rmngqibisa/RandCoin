@@ -4,6 +4,9 @@ from src.block import Block
 from src.transaction import Transaction
 from src.config import MINING_DIFFICULTY, MINING_REWARD, CURRENCY
 
+# System senders that don't require balance validation
+SYSTEM_SENDERS = ["genesis", "System"]
+
 class Blockchain:
     """
     Represents the RandCoin blockchain.
@@ -17,8 +20,6 @@ class Blockchain:
         self.pending_outflows: Dict[str, Decimal] = {}
         self.difficulty = MINING_DIFFICULTY
         self.balances: Dict[str, Decimal] = {}
-        # Bolt Optimization: Cache pending outflows to avoid O(N) scan in get_spendable_balance
-        # making validation O(1) instead of O(N) relative to pending pool size.
         self.pending_outflows: Dict[str, Decimal] = {}
         # Initialize balance cache with genesis block
         self._update_balance_from_block(self.chain[0])
@@ -62,16 +63,18 @@ class Blockchain:
             raise ValueError("Transaction amount must be positive.")
 
         # Verify Sender Balance (skip check for system/genesis)
-        if transaction.sender not in ["genesis", "System"]:
+        if transaction.sender not in SYSTEM_SENDERS:
             spendable_balance = self.get_spendable_balance(transaction.sender)
             if spendable_balance < transaction.amount:
                 raise ValueError(f"Insufficient funds. Spendable Balance: {spendable_balance} {CURRENCY}, Required: {transaction.amount} {CURRENCY}")
 
         self.pending_transactions.append(transaction)
 
-        # Update pending outflows cache
-        current_outflow = self.pending_outflows.get(transaction.sender, Decimal(0))
-        self.pending_outflows[transaction.sender] = current_outflow + transaction.amount
+        # Update pending outflows cache only for non-system/genesis senders
+        if transaction.sender not in SYSTEM_SENDERS:
+            if transaction.sender not in self.pending_outflows:
+                self.pending_outflows[transaction.sender] = Decimal(0)
+            self.pending_outflows[transaction.sender] += transaction.amount
 
     def mine_pending_transactions(self, miner_address: str):
         """
@@ -89,7 +92,7 @@ class Blockchain:
         self.chain.append(new_block)
         self._update_balance_from_block(new_block)
         self.pending_transactions = []
-        self.pending_outflows.clear()
+        self.pending_outflows = {}
 
     def get_balance(self, address: str) -> Decimal:
         """
@@ -105,7 +108,7 @@ class Blockchain:
         Get balance considering pending transactions.
         """
         balance = self.get_balance(address)
-        # Bolt Optimization: Use cached pending outflows for O(1) lookup
+        # Bolt Optimization: Use cached pending outflows instead of iterating the entire pool
         pending_outgoing = self.pending_outflows.get(address, Decimal(0))
         return balance - pending_outgoing
 
