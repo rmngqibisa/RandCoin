@@ -92,8 +92,17 @@ class Block:
         suffix = ", " + json.dumps(static_content, sort_keys=True)[1:]
         prefix = '{"nonce": '
 
+        # ⚡ Bolt Optimization:
+        # Pre-compute byte format template to avoid .encode() overhead in the loop.
+        # Hoist hashlib.sha256 to avoid global lookup overhead.
+        # Escape any '%' characters in the suffix to prevent format string vulnerabilities.
+        suffix_bytes = suffix.encode().replace(b'%', b'%%')
+        prefix_bytes = prefix.encode()
+        template = prefix_bytes + b'%d' + suffix_bytes
+        sha256 = hashlib.sha256
+
         while self.hash[:difficulty] != target:
             self.nonce += 1
-            # String concatenation is much faster than full JSON serialization
-            block_string = (prefix + str(self.nonce) + suffix).encode()
-            self.hash = hashlib.sha256(block_string).hexdigest()
+            # Byte string formatting is faster than string concatenation + encoding
+            block_string = template % self.nonce
+            self.hash = sha256(block_string).hexdigest()
