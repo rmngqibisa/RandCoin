@@ -89,20 +89,26 @@ class Block:
         # json.dumps(static_content) -> {"previous_hash": ...}
         # We need: , "previous_hash": ...
         # So we take the dump of static_content, strip the opening '{', and prepend ", "
-        suffix = ", " + json.dumps(static_content, sort_keys=True)[1:]
-        prefix = '{"nonce": '
+        # ⚡ Bolt Optimization: Use byte formatting to skip .encode() in the loop and hoist local vars
+        suffix_bytes = (", " + json.dumps(static_content, sort_keys=True)[1:]).encode()
 
-        # ⚡ Bolt Optimization:
-        # Pre-compute byte format template to avoid .encode() overhead in the loop.
-        # Hoist hashlib.sha256 to avoid global lookup overhead.
-        # Escape any '%' characters in the suffix to prevent format string vulnerabilities.
-        suffix_bytes = suffix.encode().replace(b'%', b'%%')
-        prefix_bytes = prefix.encode()
-        template = prefix_bytes + b'%d' + suffix_bytes
+        # Escape any '%' characters in the suffix to prevent format string vulnerabilities
+        suffix_bytes = suffix_bytes.replace(b"%", b"%%")
+
+        prefix_bytes = b'{"nonce": '
+        template = prefix_bytes + b"%d" + suffix_bytes
+
+        # Hoist variables for faster access inside the tight loop
+        hash_val = self.hash
+        nonce = self.nonce
         sha256 = hashlib.sha256
 
-        while self.hash[:difficulty] != target:
-            self.nonce += 1
-            # Byte string formatting is faster than string concatenation + encoding
-            block_string = template % self.nonce
-            self.hash = sha256(block_string).hexdigest()
+        while not hash_val.startswith(target):
+            nonce += 1
+            # Byte formatting is much faster than string concatenation + encoding
+            block_string = template % nonce
+            hash_val = sha256(block_string).hexdigest()
+
+        # Update instance variables after the loop completes
+        self.nonce = nonce
+        self.hash = hash_val
