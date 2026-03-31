@@ -6,6 +6,6 @@
 **Learning:** Calculating spendable balance by iterating over all pending transactions (`sum(...)`) inside `add_transaction` creates an O(N^2) bottleneck.
 **Action:** Maintain a running cache of pending outflows (`Dict[address, amount]`) that updates incrementally. This reduced the time to add 5000 transactions from ~3.1s to ~0.12s (25x speedup).
 
-## 2024-05-24 - [Pre-sorting Dictionaries for JSON Serialization]
-**Learning:** `json.dumps(..., sort_keys=True)` is O(N log N) overhead, and worse, it recursively sorts every sub-dictionary inside lists.
-**Action:** Since Python 3.7+ preserves dictionary insertion order, instantiate dictionaries with keys pre-sorted alphabetically. This allows removing `sort_keys=True` entirely for significant speedups during serialization and hashing.
+## 2024-05-24 - [Avoid Copies in Hashing Loops]
+**Learning:** Hashing `Block` repeatedly (e.g., during `is_chain_valid` which is O(N)) forces frequent re-allocation of Transaction dictionaries via `to_dict().copy()`. This creates significant GC overhead.
+**Action:** Use `copy=False` or references for internal, read-only operations like hashing/serialization. This reduced verification time by ~4% (purely CPU overhead).

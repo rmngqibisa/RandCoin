@@ -29,6 +29,8 @@ class Block:
         # Bolt Optimization: Construct dict with alphabetically sorted keys
         # to avoid O(N log N) recursive sorting in json.dumps
         block_content = {
+            "transactions": [t.to_dict(copy=False) for t in self.transactions],
+            "previous_hash": self.previous_hash,
             "nonce": self.nonce,
             "previous_hash": self.previous_hash,
             "timestamp": self.timestamp,
@@ -49,7 +51,7 @@ class Block:
         # Optimization: Pre-compute the dict representation of transactions
         # This avoids re-converting transactions to dicts and floats in every iteration
         # of the mining loop, while keeping calculate_hash() pure for verification.
-        tx_list = [t.to_dict() for t in self.transactions]
+        tx_list = [t.to_dict(copy=False) for t in self.transactions]
 
         # ⚡ Bolt Optimization:
         # Instead of calling json.dumps in every iteration (which is O(N) where N is block size),

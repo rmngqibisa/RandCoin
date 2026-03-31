@@ -78,12 +78,14 @@ class Transaction:
         tx_string = json.dumps(tx_content, separators=(', ', ': ')).encode()
         return hashlib.sha256(tx_string).hexdigest()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self, copy: bool = True) -> Dict[str, Any]:
         """
         Convert the transaction to a dictionary.
+
+        :param copy: Whether to return a copy or a direct reference.
         """
-        # Bolt Optimization: Return cached dict directly without copying to save time.
-        # Serialization only reads the dictionary, so it's safe.
+        if copy:
+            return self._cached_dict.copy()
         return self._cached_dict
 
     def __repr__(self) -> str:
