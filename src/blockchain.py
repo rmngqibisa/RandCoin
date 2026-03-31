@@ -17,6 +17,7 @@ class Blockchain:
         """
         self.chain: List[Block] = [self.create_genesis_block()]
         self.pending_transactions: List[Transaction] = []
+        self.pending_outflows: Dict[str, Decimal] = {}
         self.difficulty = MINING_DIFFICULTY
         self.balances: Dict[str, Decimal] = {}
         self.pending_outflows: Dict[str, Decimal] = {}
