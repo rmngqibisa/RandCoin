@@ -34,11 +34,12 @@ class Transaction:
 
         # Bolt Optimization: Cache the dictionary representation to avoid
         # repeated dictionary creation and float conversion during mining/validation.
+        # Insert keys in alphabetical order to eliminate the need for sort_keys=True during JSON serialization.
         self._cached_dict = {
-            "id": self._id,
-            "sender": self._sender,
-            "recipient": self._recipient,
             "amount": float(self._amount),
+            "id": self._id,
+            "recipient": self._recipient,
+            "sender": self._sender,
             "timestamp": self._timestamp
         }
 
@@ -66,13 +67,15 @@ class Transaction:
         """
         Calculate the SHA-256 hash of the transaction.
         """
+        # Bolt Optimization: Insert keys alphabetically to avoid sort_keys=True in json.dumps
         tx_content = {
-            "sender": self._sender,
-            "recipient": self._recipient,
             "amount": float(self._amount),  # Convert Decimal to float for JSON serialization compatibility
+            "recipient": self._recipient,
+            "sender": self._sender,
             "timestamp": self._timestamp
         }
-        tx_string = json.dumps(tx_content, sort_keys=True).encode()
+        # Use separators=(', ', ': ') to match default json.dumps behavior but without the O(N log N) sorting overhead
+        tx_string = json.dumps(tx_content, separators=(', ', ': ')).encode()
         return hashlib.sha256(tx_string).hexdigest()
 
     def to_dict(self, copy: bool = True) -> Dict[str, Any]:
