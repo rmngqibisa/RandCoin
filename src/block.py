@@ -26,14 +26,16 @@ class Block:
         """
         Calculate the SHA-256 hash of the block.
         """
-        # ⚡ Bolt Optimization: Keys are pre-sorted alphabetically to avoid sort_keys=True in json.dumps
+        # Bolt Optimization: Construct dict with alphabetically sorted keys
+        # to avoid O(N log N) recursive sorting in json.dumps
         block_content = {
             "nonce": self.nonce,
             "previous_hash": self.previous_hash,
             "timestamp": self.timestamp,
             "transactions": [t.to_dict() for t in self.transactions]
         }
-        block_string = json.dumps(block_content).encode()
+        # Keys are pre-sorted, use separators=(', ', ': ') to match sort_keys=True output
+        block_string = json.dumps(block_content, separators=(', ', ': ')).encode()
         return hashlib.sha256(block_string).hexdigest()
 
     def mine(self, difficulty: int):
@@ -90,7 +92,7 @@ class Block:
         # json.dumps(static_content) -> {"previous_hash": ...}
         # We need: , "previous_hash": ...
         # So we take the dump of static_content, strip the opening '{', and prepend ", "
-        suffix = ", " + json.dumps(static_content)[1:]
+        suffix = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
         prefix = '{"nonce": '
 
         while self.hash[:difficulty] != target:
