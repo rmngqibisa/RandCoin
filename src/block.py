@@ -29,8 +29,6 @@ class Block:
         # Bolt Optimization: Construct dict with alphabetically sorted keys
         # to avoid O(N log N) recursive sorting in json.dumps
         block_content = {
-            "transactions": [t.to_dict(copy=False) for t in self.transactions],
-            "previous_hash": self.previous_hash,
             "nonce": self.nonce,
             "previous_hash": self.previous_hash,
             "timestamp": self.timestamp,
@@ -97,8 +95,17 @@ class Block:
         suffix = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
         prefix = '{"nonce": '
 
-        while self.hash[:difficulty] != target:
+        # Bolt Optimization: Avoid per-iteration .encode() and string concatenation
+        # by creating a byte template and substituting the nonce.
+        # Escape any existing % in the JSON suffix to prevent format string errors.
+        suffix_bytes = suffix.encode().replace(b'%', b'%%')
+        template = prefix.encode() + b'%d' + suffix_bytes
+
+        # Hoist sha256 to a local variable to reduce global lookup overhead
+        sha256 = hashlib.sha256
+
+        while True:
             self.nonce += 1
-            # String concatenation is much faster than full JSON serialization
-            block_string = (prefix + str(self.nonce) + suffix).encode()
-            self.hash = hashlib.sha256(block_string).hexdigest()
+            self.hash = sha256(template % self.nonce).hexdigest()
+            if self.hash[:difficulty] == target:
+                break
