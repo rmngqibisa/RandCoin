@@ -5,3 +5,7 @@
 ## 2024-10-24 - [O(N^2) Transaction Validation]
 **Learning:** Validating sender balance by iterating through `pending_transactions` creates an O(N^2) bottleneck when adding N transactions.
 **Action:** Maintain a parallel `pending_outflows` cache (Dict[address, amount]) that updates on transaction addition and clears on mining. This reduced time for adding 5000 transactions from ~3.2s to ~0.25s (12x speedup).
+
+## 2024-05-24 - [Format String Vulnerabilities in Byte Formatting]
+**Learning:** When optimizing tight loops with byte string interpolation (`b'{"nonce": %d...' % nonce`), any `%` characters present in the JSON payload will be incorrectly parsed as format specifiers, causing the app to crash with `TypeError: not enough arguments for format string`. This is especially risky with arbitrary user data (like transaction sender/recipient fields).
+**Action:** Always safely escape `%` characters in byte templates (`.replace(b'%', b'%%')`) before applying the `%` format operator. This ensures robust and fast serialization without security risks or crashes.
