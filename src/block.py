@@ -26,15 +26,23 @@ class Block:
         """
         Calculate the SHA-256 hash of the block.
         """
-        # Bolt Optimization: Construct dict with alphabetically sorted keys
-        # to avoid O(N log N) recursive sorting in json.dumps
+        # Construct dict with alphabetically sorted keys to avoid O(N log N) recursive sorting in json.dumps.
+        # Do not use cached transaction data to ensure tampered transactions are detected.
+        tx_list = [
+            {
+                "amount": float(t.amount),
+                "id": t.id,
+                "recipient": t.recipient,
+                "sender": t.sender,
+                "timestamp": t.timestamp
+            }
+            for t in self.transactions
+        ]
         block_content = {
-            "transactions": [t.to_dict(copy=False) for t in self.transactions],
-            "previous_hash": self.previous_hash,
             "nonce": self.nonce,
             "previous_hash": self.previous_hash,
             "timestamp": self.timestamp,
-            "transactions": [t.to_dict() for t in self.transactions]
+            "transactions": tx_list
         }
         # Keys are pre-sorted, use separators=(', ', ': ') to match sort_keys=True output
         block_string = json.dumps(block_content, separators=(', ', ': ')).encode()
@@ -83,7 +91,7 @@ class Block:
             while self.hash[:difficulty] != target:
                 self.nonce += 1
                 block_content["nonce"] = self.nonce
-                block_string = json.dumps(block_content).encode()
+                block_string = json.dumps(block_content, separators=(', ', ': ')).encode()
                 self.hash = hashlib.sha256(block_string).hexdigest()
             return
 
@@ -94,11 +102,15 @@ class Block:
         # json.dumps(static_content) -> {"previous_hash": ...}
         # We need: , "previous_hash": ...
         # So we take the dump of static_content, strip the opening '{', and prepend ", "
-        suffix = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
-        prefix = '{"nonce": '
+        suffix_str = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
+
+        # ⚡ Bolt Optimization: Use byte string formatting instead of string concatenation + encoding
+        # Hoist hashlib.sha256 lookup and safely escape % in payloads.
+        suffix_bytes = suffix_str.encode().replace(b'%', b'%%')
+        template = b'{"nonce": %d' + suffix_bytes
+        sha256 = hashlib.sha256
 
         while self.hash[:difficulty] != target:
             self.nonce += 1
-            # String concatenation is much faster than full JSON serialization
-            block_string = (prefix + str(self.nonce) + suffix).encode()
-            self.hash = hashlib.sha256(block_string).hexdigest()
+            # Byte templating avoids .encode() overhead per iteration
+            self.hash = sha256(template % self.nonce).hexdigest()
