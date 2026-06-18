@@ -5,3 +5,7 @@
 ## 2024-10-24 - [O(N^2) Transaction Validation]
 **Learning:** Validating sender balance by iterating through `pending_transactions` creates an O(N^2) bottleneck when adding N transactions.
 **Action:** Maintain a parallel `pending_outflows` cache (Dict[address, amount]) that updates on transaction addition and clears on mining. This reduced time for adding 5000 transactions from ~3.2s to ~0.25s (12x speedup).
+
+## 2024-05-23 - [Byte Templating in Mining Loop]
+**Learning:** String concatenation and repeated `.encode()` calls in a tight loop like Proof of Work mining introduces unnecessary overhead. Using byte string templating (`b'...%d...' % nonce`) avoids re-encoding and is significantly faster.
+**Action:** Pre-encode the template with `%d` format specifier, escape any JSON `%` characters as `%%`, and use `%` formatting inside the loop. Localizing functions like `hashlib.sha256` just before the loop also yields minor lookup speedups.
