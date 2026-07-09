@@ -27,14 +27,23 @@ class Block:
         Calculate the SHA-256 hash of the block.
         """
         # Bolt Optimization: Construct dict with alphabetically sorted keys
-        # to avoid O(N log N) recursive sorting in json.dumps
+        # to avoid O(N log N) recursive sorting in json.dumps.
+        # Manually construct transaction dicts to avoid cached data
+        # so is_chain_valid correctly detects tampered transactions.
         block_content = {
-            "transactions": [t.to_dict(copy=False) for t in self.transactions],
-            "previous_hash": self.previous_hash,
             "nonce": self.nonce,
             "previous_hash": self.previous_hash,
             "timestamp": self.timestamp,
-            "transactions": [t.to_dict() for t in self.transactions]
+            "transactions": [
+                {
+                    "amount": float(t.amount),
+                    "id": t.id,
+                    "recipient": t.recipient,
+                    "sender": t.sender,
+                    "timestamp": t.timestamp
+                }
+                for t in self.transactions
+            ]
         }
         # Keys are pre-sorted, use separators=(', ', ': ') to match sort_keys=True output
         block_string = json.dumps(block_content, separators=(', ', ': ')).encode()
@@ -94,11 +103,20 @@ class Block:
         # json.dumps(static_content) -> {"previous_hash": ...}
         # We need: , "previous_hash": ...
         # So we take the dump of static_content, strip the opening '{', and prepend ", "
-        suffix = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
-        prefix = '{"nonce": '
+        suffix_str = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
+        prefix_str = '{"nonce": '
+
+        # ⚡ Bolt Optimization: Pre-encode strings to bytes and use byte formatting
+        # to avoid .encode() in the hot loop. Safe-escape % to prevent format string bugs.
+        suffix_bytes = suffix_str.encode().replace(b'%', b'%%')
+        prefix_bytes = prefix_str.encode()
+        template = prefix_bytes + b'%d' + suffix_bytes
+
+        # Hoist hashlib.sha256 to a local variable
+        sha256 = hashlib.sha256
 
         while self.hash[:difficulty] != target:
             self.nonce += 1
-            # String concatenation is much faster than full JSON serialization
-            block_string = (prefix + str(self.nonce) + suffix).encode()
-            self.hash = hashlib.sha256(block_string).hexdigest()
+            # Byte template formatting is faster than string concat + encode
+            block_bytes = template % self.nonce
+            self.hash = sha256(block_bytes).hexdigest()
