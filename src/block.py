@@ -29,12 +29,10 @@ class Block:
         # Bolt Optimization: Construct dict with alphabetically sorted keys
         # to avoid O(N log N) recursive sorting in json.dumps
         block_content = {
-            "transactions": [t.to_dict(copy=False) for t in self.transactions],
-            "previous_hash": self.previous_hash,
             "nonce": self.nonce,
             "previous_hash": self.previous_hash,
             "timestamp": self.timestamp,
-            "transactions": [t.to_dict() for t in self.transactions]
+            "transactions": [t.to_dict(copy=False) for t in self.transactions]
         }
         # Keys are pre-sorted, use separators=(', ', ': ') to match sort_keys=True output
         block_string = json.dumps(block_content, separators=(', ', ': ')).encode()
@@ -94,11 +92,23 @@ class Block:
         # json.dumps(static_content) -> {"previous_hash": ...}
         # We need: , "previous_hash": ...
         # So we take the dump of static_content, strip the opening '{', and prepend ", "
-        suffix = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
-        prefix = '{"nonce": '
+        suffix_str = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
 
-        while self.hash[:difficulty] != target:
-            self.nonce += 1
-            # String concatenation is much faster than full JSON serialization
-            block_string = (prefix + str(self.nonce) + suffix).encode()
-            self.hash = hashlib.sha256(block_string).hexdigest()
+        # ⚡ Bolt Optimization: Use byte format templating
+        # Escape any '%' in the JSON to avoid format string errors
+        suffix_bytes = suffix_str.encode().replace(b'%', b'%%')
+        template = b'{"nonce": %d' + suffix_bytes
+
+        sha256 = hashlib.sha256
+
+        # Localize attribute lookups for the inner loop
+        nonce = self.nonce
+        _hash = self.hash
+
+        while _hash[:difficulty] != target:
+            nonce += 1
+            # Byte format templating avoids .encode() and string concat overhead per iteration
+            _hash = sha256(template % nonce).hexdigest()
+
+        self.nonce = nonce
+        self.hash = _hash
