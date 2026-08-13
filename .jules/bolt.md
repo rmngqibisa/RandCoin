@@ -5,3 +5,6 @@
 ## 2024-10-24 - [O(N^2) Transaction Validation]
 **Learning:** Validating sender balance by iterating through `pending_transactions` creates an O(N^2) bottleneck when adding N transactions.
 **Action:** Maintain a parallel `pending_outflows` cache (Dict[address, amount]) that updates on transaction addition and clears on mining. This reduced time for adding 5000 transactions from ~3.2s to ~0.25s (12x speedup).
+## 2024-11-20 - [Mining Loop String Formatting Overhead]
+**Learning:** In a tight loop executing millions of times (Proof of Work), Python's string concatenation `(prefix + str(nonce) + suffix).encode()` creates significant object allocation and method lookup overhead.
+**Action:** Use byte string templating `template % nonce` instead. Hoist local variable lookups like `hashlib.sha256` to avoid dictionary lookups on every iteration. Also, ensure you safely escape any `%` characters (`replace('%', '%%')`) in pre-computed payload suffixes to prevent format string errors when using byte formatting.
