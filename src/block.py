@@ -29,12 +29,10 @@ class Block:
         # Bolt Optimization: Construct dict with alphabetically sorted keys
         # to avoid O(N log N) recursive sorting in json.dumps
         block_content = {
-            "transactions": [t.to_dict(copy=False) for t in self.transactions],
-            "previous_hash": self.previous_hash,
             "nonce": self.nonce,
             "previous_hash": self.previous_hash,
             "timestamp": self.timestamp,
-            "transactions": [t.to_dict() for t in self.transactions]
+            "transactions": [t.to_dict(copy=False) for t in self.transactions]
         }
         # Keys are pre-sorted, use separators=(', ', ': ') to match sort_keys=True output
         block_string = json.dumps(block_content, separators=(', ', ': ')).encode()
@@ -97,8 +95,15 @@ class Block:
         suffix = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
         prefix = '{"nonce": '
 
+        # ⚡ Bolt Optimization: Use byte string formatting and hoist lookups
+        # Escape any '%' characters in the payload to prevent format string vulnerabilities
+        safe_suffix_bytes = suffix.encode().replace(b'%', b'%%')
+        template_bytes = prefix.encode() + b'%d' + safe_suffix_bytes
+
+        sha256 = hashlib.sha256
+
         while self.hash[:difficulty] != target:
             self.nonce += 1
-            # String concatenation is much faster than full JSON serialization
-            block_string = (prefix + str(self.nonce) + suffix).encode()
-            self.hash = hashlib.sha256(block_string).hexdigest()
+            # Byte formatting is faster than string concatenation + encoding
+            block_string = template_bytes % self.nonce
+            self.hash = sha256(block_string).hexdigest()
