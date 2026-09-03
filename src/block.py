@@ -29,12 +29,10 @@ class Block:
         # Bolt Optimization: Construct dict with alphabetically sorted keys
         # to avoid O(N log N) recursive sorting in json.dumps
         block_content = {
-            "transactions": [t.to_dict(copy=False) for t in self.transactions],
-            "previous_hash": self.previous_hash,
             "nonce": self.nonce,
             "previous_hash": self.previous_hash,
             "timestamp": self.timestamp,
-            "transactions": [t.to_dict() for t in self.transactions]
+            "transactions": [t.to_dict(copy=False) for t in self.transactions]
         }
         # Keys are pre-sorted, use separators=(', ', ': ') to match sort_keys=True output
         block_string = json.dumps(block_content, separators=(', ', ': ')).encode()
@@ -94,11 +92,20 @@ class Block:
         # json.dumps(static_content) -> {"previous_hash": ...}
         # We need: , "previous_hash": ...
         # So we take the dump of static_content, strip the opening '{', and prepend ", "
-        suffix = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
-        prefix = '{"nonce": '
+        suffix_str = ", " + json.dumps(static_content, separators=(', ', ': '))[1:]
+        prefix_str = '{"nonce": '
+
+        # ⚡ Bolt Optimization: Use byte string formatting instead of string concat + encode
+        prefix_b = prefix_str.encode()
+        # Escape any % characters in suffix to avoid format string vulnerabilities
+        suffix_b = suffix_str.encode().replace(b'%', b'%%')
+        template = prefix_b + b'%d' + suffix_b
+
+        # Hoist sha256 function to avoid global lookup overhead in the loop
+        sha256 = hashlib.sha256
 
         while self.hash[:difficulty] != target:
             self.nonce += 1
-            # String concatenation is much faster than full JSON serialization
-            block_string = (prefix + str(self.nonce) + suffix).encode()
-            self.hash = hashlib.sha256(block_string).hexdigest()
+            # Byte formatting is much faster than string concatenation followed by encoding
+            block_string = template % self.nonce
+            self.hash = sha256(block_string).hexdigest()
