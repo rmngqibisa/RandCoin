@@ -5,3 +5,7 @@
 ## 2024-10-24 - [O(N^2) Transaction Validation]
 **Learning:** Validating sender balance by iterating through `pending_transactions` creates an O(N^2) bottleneck when adding N transactions.
 **Action:** Maintain a parallel `pending_outflows` cache (Dict[address, amount]) that updates on transaction addition and clears on mining. This reduced time for adding 5000 transactions from ~3.2s to ~0.25s (12x speedup).
+
+## 2024-10-25 - [Proof of Work Byte Templating]
+**Learning:** String concatenation and `.encode()` in tight loops like Proof of Work still introduces significant overhead. Moving to byte string templating (`b'{"nonce": %d' + suffix_bytes`) and using `%` formatting directly with bytes avoids string allocations and `.encode()` overhead on every iteration. Hoisting the `hashlib.sha256` lookup also provides a small constant speedup.
+**Action:** When performing millions of iterations with mostly static strings, pre-compute the entire payload as a byte template, safely escape any `%` characters (`replace('%', '%%')`), and use byte string formatting (`%d`) for the dynamic part.
